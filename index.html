@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Customer Review</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000; /* Màu nền đen */
+            display: flex;
+            justify-content: center; /* Căn giữa theo chiều ngang */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            height: 100vh; /* Chiều cao 100% của viewport */
+        }
+
+        .form-container {
+            background-color: #fff; /* Màu nền trắng cho form */
+            padding: 20px;
+            border: 2px solid #fff; /* Viền trắng */
+            border-radius: 10px; /* Bo tròn viền */
+            width: 400px; /* Độ rộng của form */
+        }
+
+        .form-container form {
+            max-width: 100%; /* Độ rộng tối đa của form */
+        }
+
+        .form-container label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #000; /* Màu chữ */
+        }
+
+        .form-container input[type="number"],
+        .form-container input[type="email"],
+        .form-container textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form-container input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .form-container input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .rating {
+            display: flex;
+            justify-content: center;
+            height: 50px;
+        }
+
+        .check {
+            color: yellow;
+        }
+
+        .star {
+            cursor: pointer; /* Chuyển đổi con trỏ thành bàn tay */
+        }
+
+        .mood-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50px;
+        }
+
+        .feedback {
+            margin-left: 5px;
+        }
+
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            margin-left: 300px;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.05); /* Phóng to nút khi hover */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Đổ bóng nút khi hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <form id="reviewForm">
+            <div class="mood-icon" id="mood-icon"></div>
+            <div id="rating" class="rating">
+                <span class="fa fa-star fa-2x star" onclick="changeColor(1)"></span>
+                <span class="fa fa-star fa-2x star" onclick="changeColor(2)"></span>
+                <span class="fa fa-star fa-2x star" onclick="changeColor(3)"></span>
+                <span class="fa fa-star fa-2x star" onclick="changeColor(4)"></span>
+                <span class="fa fa-star fa-2x star" onclick="changeColor(5)"></span>
+            </div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <label for="review">Review:</label>
+            <textarea id="review" name="review" rows="4" required></textarea>
+            <button id="submit-btn" class="submit-btn">SUBMIT</button>
+        </form>
+    </div>
+    <!-- Thêm đoạn mã JavaScript vào đây -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            event.preventDefault();
+
+            if (selectedStars === 0) {
+                alert("Please select a rating before submitting.");
+                return; // Dừng việc gửi dữ liệu nếu người dùng chưa chọn số sao
+            }
+            
+            const submitButton = document.getElementById('submit-btn');
+            const stars = document.querySelectorAll('.fa-star');
+            const moodIcon = document.getElementById('mood');
+
+            let selectedStars = 0; // Khởi tạo biến để lưu trữ số sao được chọn
+    
+            submitButton.addEventListener('click', function(event) {
+                event.preventDefault();
+    
+                const rating = selectedStars;
+                const email = document.getElementById('email').value;
+                const comment = document.getElementById('review').value;
+    
+                const formData = {
+                    rating: rating,
+                    email: email,
+                    comment: comment,
+                };
+    
+                fetch('/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.text())
+                .then(data => {
+                    alert(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+    
+            stars.forEach((star, index) => {
+                star.addEventListener('click', function() {
+                    selectedStars = index + 1; // Cập nhật số sao được chọn khi click vào sao
+                    changeColor(selectedStars);
+                });
+            });
+        });
+    
+        function changeColor(starNumber) {
+            const stars = document.querySelectorAll('.fa-star');
+            const moodIcon = document.getElementById('mood-icon');
+    
+            stars.forEach((star, index) => {
+                if (index < starNumber) {
+                    star.style.color = "yellow";
+                } else {
+                    star.style.color = "black";
+                }
+            });
+    
+            switch (starNumber) {
+                case 1:
+                    moodIcon.innerHTML = '<i class="far fa-frown" id="mood"></i><h4 class="feedback" id="mood">Very Bad</h4>';
+                    break;
+                case 2:
+                    moodIcon.innerHTML = '<i class="far fa-frown" id="mood"></i><h4 class="feedback" id="mood">Bad</h4>';
+                    break;
+                case 3:
+                    moodIcon.innerHTML = '<i class="far fa-frown" id="mood"></i><h4 class="feedback" id="mood">Good</h4>';
+                    break;
+                case 4:
+                    moodIcon.innerHTML = '<i class="far fa-smile" id="mood"></i><h4 class="feedback" id="mood">Very Good</h4>';
+                    break;
+                case 5:
+                    moodIcon.innerHTML = '<i class="far fa-smile" id="mood"></i><h4 class="feedback" id="mood">Extremely Good</h4>';
+                    break;
+                default:
+                    moodIcon.innerHTML = '';
+            }
+        }
+    </script>
+    
+    <!-- Kết thúc đoạn mã JavaScript -->
+
+</body>
+</html>
